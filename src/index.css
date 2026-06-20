@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   DESIGN TOKENS — CSS custom properties
+
+   Canonical values are defined in src/theme/tokens.js. These are a manual
+   mirror so Tailwind (via tailwind.config.js) and any raw CSS can consume
+   the same colors without a separate token-build step. If a color changes
+   in the Design Bible, update both this block and theme/tokens.js together.
+   ========================================================================== */
+:root {
+  --color-bg: #000000;
+  --color-bg-deep: #050505;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9a9a9a;
+  --color-accent-1: #ff7a00;
+  --color-accent-2: #ff5a00;
+  --color-accent-3: #e64500;
+  --color-accent-4: #2a0000;
+
+  --radius-card: 32px;
+
+  /* Font roles — system stack until typefaces are chosen (Design Bible
+     specifies type scale and weight, not specific families yet). */
+  --font-display: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-utility: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--color-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Isolation so the fixed atmosphere layer (GradientLight) stacks predictably
+   beneath scene content regardless of where scenes set their own z-index. */
+#root {
+  position: relative;
+  isolation: isolate;
+}
+
+::selection {
+  background: var(--color-accent-2);
+  color: var(--color-bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-1);
+  outline-offset: 3px;
+}
+
+/* Baseline safety net at the CSS level, in addition to the JS-level
+   useReducedMotion hook consumed by theme/motion.js. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
