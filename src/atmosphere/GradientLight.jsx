@@ -28,7 +28,8 @@ const SCENE_INTENSITY = {
   identity: 0.62,
   journey: 0.78,
   milestones: 0.88,
-  work: 0.92
+  work: 0.92,
+  'creative-side': 1.0
 };
 const DEFAULT_INTENSITY = 0.5;
 
