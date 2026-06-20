@@ -29,7 +29,9 @@ const SCENE_INTENSITY = {
   journey: 0.78,
   milestones: 0.88,
   work: 0.92,
-  'creative-side': 1.0
+  'creative-side': 1.0,
+  future: 0.45,
+  contact: 0.05,
 };
 const DEFAULT_INTENSITY = 0.5;
 

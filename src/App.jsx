@@ -5,6 +5,8 @@ import { Journey } from './scenes/03-Journey/index.js';
 import { Milestones } from './scenes/04-Milestones/index.js';
 import { Work } from './scenes/05-Work/index.js';
 import { CreativeSide } from './scenes/06-CreativeSide/index.js';
+import { Future } from './scenes/07-Future/index.js';
+import { Contact } from './scenes/08-Contact/index.js';
 
 // Order represents layout serialization. Scenes 7-8 remain open placeholders.
 function App() {
@@ -16,6 +18,8 @@ function App() {
       <Milestones />
       <Work />
       <CreativeSide />
+      <Future/>
+      <Contact/>
       {/* <SceneWrapper id="future"><Future /></SceneWrapper> */}
       {/* <SceneWrapper id="contact"><Contact /></SceneWrapper> */}
     </ScrollOrchestrator>

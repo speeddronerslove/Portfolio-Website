@@ -10,19 +10,11 @@
 // Integration notes:
 //   - Wrapped in the existing SceneWrapper (id="journey"), same
 //     registration/min-height pattern as Arrival and Identity.
-//   - This is the first scene that needs more than one viewport of scroll
-//     to do its job (three sequential reveals + one image-expansion
-//     moment). Its child is a tall driver div (300dvh) with a sticky
-//     pinned viewport inside it. SceneWrapper's own min-h-dvh is just a
-//     floor — the <section> grows to fit this child naturally, nothing
-//     needed to override it.
+//   - Upgraded to 400dvh to extend layout real estate and create cinematic
+//     Sanctuary Zones, slowing down text presentation to ensure ample reading time.
 //   - Text fragments crossfade in place (opacity/y driven by this scene's
-//     own local scroll progress) rather than using the stagger/variant
-//     pattern from Arrival and Identity. "Each replacing the last, not
-//     stacked" is a continuous scroll-bound effect — theme/motion.js's
-//     discrete viewport-enter variants don't express that, so this scene
-//     uses useScroll/useTransform directly, the same primitive the
-//     architecture's (not-yet-built) ParallaxLayer would eventually wrap.
+//     own local scroll progress) using dedicated spring dampening via theme/motion.js
+//     to prevent fast-scrolling acceleration or jittery text changes.
 //   - The single visual moment is a generated low-poly wireframe — no
 //     external asset exists yet, so nothing here references a file that
 //     isn't there. Same reasoning as Arrival's grain texture. Swap the
@@ -41,19 +33,19 @@
 // total page height).
 
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { SceneWrapper } from '../../components/layout/SceneWrapper.jsx';
 import { useSceneContext } from '../../context/SceneContext.jsx';
+import { springConfig } from '../../theme/motion.js';
 import { journeyContent } from './Journey.content.js';
 
-// Scroll ranges (0–1 across this scene's own 300dvh) for each text
-// fragment: fade in, hold, fade out, with a slight overlap into the next
-// fragment's fade-in for a smooth crossfade. These are scene-local
-// orchestration values, not shared design tokens.
+// Expanded Sanctuary Ranges: Mapped across a 400dvh driver track.
+// Each plateau locks text layout safely inside static intervals (0.15 width each)
+// before executing clean, non-abrupt transitional handoffs.
 const FRAGMENT_RANGES = [
-  [0, 0.07, 0.21, 0.29],
-  [0.27, 0.35, 0.49, 0.57],
-  [0.55, 0.63, 0.73, 0.79],
+  [0.05, 0.12, 0.27, 0.35],
+  [0.35, 0.42, 0.57, 0.65],
+  [0.65, 0.72, 0.85, 0.92],
 ];
 
 function useFragmentTransform(progress, range, reducedMotion) {
@@ -66,24 +58,26 @@ export function Journey() {
   const driverRef = useRef(null);
   const { reducedMotion } = useSceneContext();
 
-  const { scrollYProgress: progress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: driverRef,
     offset: ['start start', 'end end'],
   });
+
+  // Inertial spring system layer decoupled from raw mouse-wheel mutations
+  const progress = useSpring(rawProgress, springConfig.atmosphere);
 
   const fragment1 = useFragmentTransform(progress, FRAGMENT_RANGES[0], reducedMotion);
   const fragment2 = useFragmentTransform(progress, FRAGMENT_RANGES[1], reducedMotion);
   const fragment3 = useFragmentTransform(progress, FRAGMENT_RANGES[2], reducedMotion);
 
-  // The visual moment: fades and grows in as the last fragment trails off,
-  // arriving at full size right where the scene ends — "pulling toward an
-  // image that expands to fill the frame" per the Scene Map's transition note.
-  const imageOpacity = useTransform(progress, [0.74, 0.92], [0, 1]);
-  const imageScale = useTransform(progress, [0.74, 1], reducedMotion ? [1, 1] : [0.88, 1.06]);
+  // The visual moment: moves elegantly into focus over a wider threshold window,
+  // preventing abrupt visual pop as the final text narrative trails off.
+  const imageOpacity = useTransform(progress, [0.82, 0.94], [0, 1]);
+  const imageScale = useTransform(progress, [0.82, 1], reducedMotion ? [1, 1] : [1.03, 1]);
 
   return (
     <SceneWrapper id="journey">
-      <div ref={driverRef} className="relative h-[300dvh] w-full">
+      <div ref={driverRef} className="relative h-[400dvh] w-full">
         <div className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden px-6 sm:px-10 lg:px-16">
           {/* Sequential text — each fragment occupies the same position
               and crossfades in place rather than stacking below the last. */}

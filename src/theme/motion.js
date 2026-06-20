@@ -21,6 +21,12 @@ export const duration = {
   ambient: 2.4,
 };
 
+// High-fidelity spring configurations dedicated to dampening raw scroll tracks.
+// Explicitly structured to remove viewport jitter and establish reading sanctuaries.
+export const springConfig = {
+  atmosphere: { stiffness: 35, damping: 22, mass: 1.2, restDelta: 0.001 }
+};
+
 // Default fade — the baseline reveal used across most scenes.
 export const fadeIn = {
   hidden: { opacity: 0 },
@@ -30,7 +36,7 @@ export const fadeIn = {
   },
 };
 
-// Fade + slight rise — the default scene-content reveal-on-scroll.
+// Permanent, anchor-point configuration matching the original state exactly
 export const revealUp = {
   hidden: { opacity: 0, y: 32 },
   visible: {
@@ -97,6 +103,7 @@ export function getMotionVariant(variant, reducedMotion) {
 const motionTokens = {
   ease,
   duration,
+  springConfig,
   fadeIn,
   revealUp,
   textReveal,
