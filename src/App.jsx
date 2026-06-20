@@ -1,24 +1,23 @@
 import { ScrollOrchestrator } from './atmosphere/ScrollOrchestrator.jsx';
 import { Arrival } from './scenes/01-Arrival/index.js';
 import { Identity } from './scenes/02-Identity/index.js';
+import { Journey } from './scenes/03-Journey/index.js';
+import { Milestones } from './scenes/04-Milestones/index.js';
+import { Work } from './scenes/05-Work/index.js';
 
-// Scenes 3–8 are not built yet. Each commented slot below corresponds 1:1
-// to the approved Scene Map and will become an import of that scene's
-// component from src/scenes/, the same way Arrival and Identity are wired
-// below. Order here is the order they render in.
+// Scenes 6–8 remain ready for deployment hooks. Order represents layout serialization.
 function App() {
   return (
     <ScrollOrchestrator>
       <Arrival />
       <Identity />
-      {/* <SceneWrapper id="journey"><Journey /></SceneWrapper> */}
-      {/* <SceneWrapper id="milestones"><Milestones /></SceneWrapper> */}
-      {/* <SceneWrapper id="work"><Work /></SceneWrapper> */}
+      <Journey />
+      <Milestones />
+      <Work />
       {/* <SceneWrapper id="creative-side"><CreativeSide /></SceneWrapper> */}
       {/* <SceneWrapper id="future"><Future /></SceneWrapper> */}
       {/* <SceneWrapper id="contact"><Contact /></SceneWrapper> */}
-    </ScrollOrchestrator>
-  );
+    </ScrollOrchestrator>  );
 }
 
 export default App;
