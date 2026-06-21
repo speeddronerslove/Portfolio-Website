@@ -7,63 +7,65 @@
 //
 // Integration notes:
 //   - Wrapped in the existing SceneWrapper (id="identity"), same pattern
-//     as Arrival — registers with SceneContext's shared scroll observer,
-//     gets min-h-dvh layout.
-//   - Reads `reducedMotion` from SceneContext, same as Arrival.
-//   - Composes directly from theme/motion.js variants/tokens — shared
-//     primitives (Heading, RevealOnScroll) still aren't built yet, so
-//     this is the second file in line to refactor onto them once they
-//     exist.
-//   - Unlike Arrival, this scene uses `whileInView` instead of `animate`
-//     on mount: Arrival is visible the instant the page loads, but
-//     Identity sits below the fold, and every scene mounts together up
-//     front (App.jsx renders the full sequence at once) — so without
-//     whileInView, the reveal would fire off-screen and the text would
-//     already be sitting there fully visible by the time it scrolls into
-//     view. `viewport={{ once: true }}` keeps it from replaying on
-//     scroll-back, matching the rest of the site's reveal behavior.
-//   - No background texture here (unlike Arrival), no card, no border —
-//     per Visual Direction this scene is built entirely from space and
-//     type. The global GradientLight remains the only atmosphere element
-//     and is untouched by this file.
-//   - The text block is deliberately offset left on larger viewports
-//     rather than centered full-width like Arrival's hero — per Visual
-//     Direction, "text never spans full width." This asymmetry is also
-//     what makes the scene read as a new scene rather than a repeat of
-//     Arrival's layout.
+//     as Arrival — registers with SceneContext's shared scroll observer.
+//   - CONTINUITY FIX: Preserves the natural document height pattern instead of locking 
+//     the screen down via sticky boxes, removing structural inconsistency.
+//   - Tracks element viewport entry/exit progression via container level useScroll.
+//   - Text fragments smoothly fade out on exit, matching the atmospheric fade rules 
+//     of subsequent scenes.
+//   - MAINTAINS ASYMMETRY LAYOUT: Content remains deliberately offset left on larger
+//     viewports (`lg:mx-0 lg:ml-[12%]`) and never spans full-width.
 
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { SceneWrapper } from '../../components/layout/SceneWrapper.jsx';
 import { useSceneContext } from '../../context/SceneContext.jsx';
-import { fadeIn, revealUp, staggerContainer, getMotionVariant } from '../../theme/motion.js';
+import { springConfig } from '../../theme/motion.js';
 import { identityContent } from './Identity.content.js';
 
 export function Identity() {
+  const elementRef = useRef(null);
   const { reducedMotion } = useSceneContext();
+
+  // Track the absolute scroll position of this container relative to the viewport window
+  const { scrollYProgress: rawProgress } = useScroll({
+    target: elementRef,
+    offset: ['start end', 'end start'],
+  });
+
+  // Inertial dampening spring to match global atmosphere response
+  const progress = useSpring(rawProgress, springConfig.atmosphere);
+
+  // Structural Spatial Intersection Mapping:
+  // - Enters completely faded in near the top center of its arrival
+  // - Gracefully de-escalates and blends away into the background canvas as it exits upward
+  const contentOpacity = useTransform(progress, [0.0, 0.25, 0.65, 0.90], [0, 1, 1, 0]);
+  const contentY = useTransform(progress, [0.0, 0.25, 0.65, 0.90], [30, 0, 0, -30]);
 
   return (
     <SceneWrapper id="identity">
-      <motion.div
-        variants={staggerContainer(0.25, 0.15)}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.4 }}
-        className="relative z-10 mx-auto w-full max-w-xl px-6 sm:px-10 lg:mx-0 lg:ml-[12%]"
+      <div 
+        ref={elementRef} 
+        className="relative min-h-dvh w-full flex items-center justify-start bg-transparent py-24 px-6 sm:px-10"
       >
-        <motion.p
-          variants={getMotionVariant(revealUp, reducedMotion)}
-          className="font-display text-display font-medium leading-tight text-primary"
+        <motion.div
+          style={{ 
+            opacity: contentOpacity, 
+            y: reducedMotion ? 0 : contentY 
+          }}
+          className="relative z-10 w-full max-w-xl mx-auto lg:mx-0 lg:ml-[12%] select-none tracking-tighter"
         >
-          {identityContent.statement}
-        </motion.p>
+          {/* Mindset Editorial Statement */}
+          <p className="font-display text-display font-medium leading-tight text-primary">
+            {identityContent.statement}
+          </p>
 
-        <motion.p
-          variants={getMotionVariant(fadeIn, reducedMotion)}
-          className="mt-md max-w-md font-body text-body text-secondary"
-        >
-          {identityContent.supportingLine}
-        </motion.p>
-      </motion.div>
+          {/* Supporting Context */}
+          <p className="mt-md max-w-md font-body text-body text-secondary">
+            {identityContent.supportingLine}
+          </p>
+        </motion.div>
+      </div>
     </SceneWrapper>
   );
 }

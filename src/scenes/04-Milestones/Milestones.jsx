@@ -11,8 +11,8 @@
 //   - Converted to a dedicated Sticky Storytelling System with static viewport lockdown.
 //   - Uses an expanded 250vh track coupled with theme/motion.js springConfig to stabilize
 //     reading time and implement Sanctuary reading plateaus under continuous scroll.
-//   - FIXES ACCIDENTALLY INJECTED BACKGROUND COVERS: Stripped absolute colored fields; 
-//     now integrates seamlessly with the global multi-scene atmosphere context.
+//   - INTEGRATION FIX: Stripped local background wrappers and local glowing elements 
+//     to prevent conflicts with the global multi-scene atmosphere layers.
 //   - A subtle desaturation on scroll-out (grayscale via local scroll
 //     progress) implements the Scene Map's documented transition note.
 //   - reducedMotion disables it, leaving the content at full color throughout.
@@ -47,7 +47,7 @@ export function Milestones() {
 
   return (
     <SceneWrapper id="milestones">
-      <div ref={containerRef} className="relative h-[250vh] w-full">
+      <div ref={containerRef} className="relative h-[250vh] w-full bg-transparent">
         <div className="sticky top-0 flex h-dvh w-full flex-col justify-center overflow-hidden">
           <motion.div
             style={{ 
